@@ -1,0 +1,7 @@
+> rpmBuild
+#> rpm "build"
+#> rpm clean
+#-> rpm build1
+#-> rpm clean1
+#-> rpm build clean
+#-> rpm build1 clean1

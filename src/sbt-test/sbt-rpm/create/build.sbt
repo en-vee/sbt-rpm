@@ -1,0 +1,8 @@
+name := "rpm-build"
+os := "linux"
+arch := "X86_64"
+destinationDirectory := "C:/Temp"
+packageVersion := "1.0.0"
+packageName := "rpm-build"
+packageDescription := "rpm-build-descr"
+packageRelease := "1"
