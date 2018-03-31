@@ -60,12 +60,7 @@ object Rpm extends AutoPlugin {
     os := undefinedKeyError(os.key),
     arch := undefinedKeyError(arch.key),
     rpmBuild := {
-      /*
-      val args = spaceDelimited("one of : build or clean").parsed
-      require(args.length == 1)
-      require(args(0).equals("build") || args(0).equals("clean"))
-      println(s"Running RPM Task with arguments ${args}")
-      */
+      
       println("Building RPM")      
       val rpmBuilder: Builder = new Builder()
       rpmBuilder.setType(RpmType.BINARY)
