@@ -4,5 +4,8 @@
 project/project/*
 project/target/*
 target/*
-
 /bin/
+.cache-main
+src/sbt-test/sbt-rpm/create/build.sbt~
+src/sbt-test/sbt-rpm/create/test~
+
