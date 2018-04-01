@@ -6,3 +6,7 @@ packageVersion := "1.0.0"
 packageName := "rpm-build"
 packageDescription := "rpm-build-descr"
 packageRelease := "1"
+packageFiles += ("C:/temp/cascade.gif" -> "/opt/axlrate/imgs/cascade.gif")
+packageFiles += ("C:/temp/prev.gif" -> "/opt/axlrate/imgs/prev.gif")
+packageDirectories += "/var/opt/axlrate/log"
+packageDependencies += ("axlrate-utils","1.0","GE")

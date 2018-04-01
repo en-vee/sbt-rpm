@@ -8,23 +8,24 @@ import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
 import org.redline_rpm.Builder
 import org.redline_rpm.header.RpmType
+import org.redline_rpm.header.Flags
 
 object Rpm extends AutoPlugin {
 
   override def trigger = allRequirements
 
   object RpmKeys {
-    
+
   }
 
   object autoImport {
-    
+
     /*
      * Tasks provided by this plugin
      */
     val rpmBuild = inputKey[Unit]("main task for rpm build")
     val rpmClean = inputKey[Unit]("main task for rpm clean")
-    
+
     /*
      * Packaging options
      */
@@ -42,54 +43,91 @@ object Rpm extends AutoPlugin {
     val arch = settingKey[String](s"Architecture/Instruction set type which can be one of ${Architecture.values().mkString(",")}")
     val os = settingKey[String](s"Operating System type which can be one of ${Os.values().mkString(",")}")
     val license = settingKey[String]("Type of license")
-    val requires = settingKey[Unit]("The package and it's version on which this RPM depends")
+    val packageDependencies = settingKey[Seq[(String,String,String)]]("The package and it's version on which this RPM depends")
     val directory = settingKey[Unit]("Directory to be added to the RPM")
     val preInstallScript = settingKey[String]("Pre-installation script")
     val preUninstallScript = settingKey[String]("Pre-UnInstallation script")
     val postInstallScript = settingKey[String]("Post-installation script")
     val postUninstallScript = settingKey[String]("Post-UnInstallation script")
+    val packageFiles = settingKey[Map[String, String]]("List of files which are to be included in package")
+    val packageDirectories = settingKey[Seq[String]]("List of directories which are to be included in package")
+    
   }
-  
+
   import autoImport._
 
-  override val projectSettings = Seq(    
+  override val projectSettings = Seq(
     packageName := undefinedKeyError(packageName.key),
     packageDescription := undefinedKeyError(packageDescription.key),
     packageRelease := undefinedKeyError(packageRelease.key),
     packageVersion := undefinedKeyError(packageVersion.key),
     os := undefinedKeyError(os.key),
     arch := undefinedKeyError(arch.key),
+    packageFiles := Map[String, String](),
+    packageDirectories := Seq[String](),
+    packageDependencies := Seq(),
     rpmBuild := {
-      
-      println("Building RPM")      
+      println("Building RPM")
       val rpmBuilder: Builder = new Builder()
       rpmBuilder.setType(RpmType.BINARY)
       rpmBuilder.setPackage(packageName.value, packageVersion.value, packageRelease.value)
       rpmBuilder.setPlatform(Architecture.valueOf(arch.value.toUpperCase()), Os.valueOf(os.value.toUpperCase))
+      rpmBuilder.setDescription(packageDescription.value)
+      /*
+       * Get list of files which are to be added and add them one by one
+       */
+      if (!packageFiles.value.isEmpty) {
+        packageFiles.value.foreach { file =>
+          println(s"adding file : ${file._1}")
+          /*
+           * TODO : Check if file specified as input exists
+           */
+          rpmBuilder.addFile(file._2, new File(file._1))
+        }
+
+        /*
+         * Get list of directories which are to be added and add them one by one
+         */
+        if (!packageDirectories.value.isEmpty) {
+          packageDirectories.value.foreach { dir =>
+            println(s"adding directory : ${dir}")
+            rpmBuilder.addDirectory(dir)
+          }
+        }
+        
+        /*
+         * Add dependencies
+         */
+        if(!packageDependencies.value.isEmpty) {
+          packageDependencies.value.foreach {
+            dep =>
+              streams.value.log.info(s"adding dependency on ${dep._1}")
+              rpmBuilder.addDependency(dep._1, Flags.EQUAL, dep._2)
+          }
+        }
+      }
       rpmBuilder.build(new File(destinationDirectory.value))
     },
     rpmClean := {
       println("Cleaning RPM")
       IO.delete(new File(destinationDirectory.value + "/" + packageName.value + "-" + packageVersion.value + "-" + arch.value))
-    }
-    
-  )
+    })
 
   def undefinedKeyError[A](key: AttributeKey[A]): A = {
     sys.error(
       s"${key.description.getOrElse("A required key")} is not defined. " +
         s"Please declare a value for the `${key.label}` key.")
   }
-  
-  private [this] def buildRpm() {
+
+  private[this] def buildRpm() {
   }
-  
-  private [this] def cleanRpm() {
-    
+
+  private[this] def cleanRpm() {
+
   }
-  
-  private [this] def inspectRpm() {
-    
+
+  private[this] def inspectRpm() {
+
   }
 
 }
