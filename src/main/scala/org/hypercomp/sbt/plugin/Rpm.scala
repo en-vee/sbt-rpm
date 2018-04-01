@@ -66,6 +66,10 @@ object Rpm extends AutoPlugin {
     packageFiles := Map[String, String](),
     packageDirectories := Seq[String](),
     packageDependencies := Seq(),
+    preInstallScript := "",
+    postInstallScript := "",
+    preUninstallScript := "",
+    postUninstallScript := "",
     rpmBuild := {
       println("Building RPM")
       val rpmBuilder: Builder = new Builder()
@@ -102,15 +106,44 @@ object Rpm extends AutoPlugin {
           packageDependencies.value.foreach {
             dep =>
               streams.value.log.info(s"adding dependency on ${dep._1}")
-              rpmBuilder.addDependency(dep._1, Flags.EQUAL, dep._2)
+              rpmBuilder.addDependency(dep._1, Flags.GREATER | Flags.EQUAL, dep._3)
           }
         }
+        
+        /*
+         * Add Pre/Post install scripts
+         */
+        println("Checking pre-install script")
+        if(!preInstallScript.value.isEmpty) {
+          println(s"Setting pre-install script ${preInstallScript.value}")
+          rpmBuilder.setPreInstallScript(file(preInstallScript.value))
+        }     
+        
+        println("Checking post-install script")
+        if(!postInstallScript.value.isEmpty) {
+          println(s"Setting post-install script ${postInstallScript.value}")
+          rpmBuilder.setPostInstallScript(file(postInstallScript.value))
+        }
+        
+        println("Checking pre-un-install script")
+        if(!preUninstallScript.value.isEmpty) {
+          println(s"Setting pre-un-install script ${preUninstallScript.value}")
+          rpmBuilder.setPreUninstallScript(file(preUninstallScript.value))
+        }
+        
+        println("Checking post-un-install script")
+        if(!postUninstallScript.value.isEmpty) {
+          println(s"Setting post-un-install script ${postUninstallScript.value}")
+          rpmBuilder.setPostUninstallScript(file(postUninstallScript.value))
+        }
+        
       }
       rpmBuilder.build(new File(destinationDirectory.value))
     },
     rpmClean := {
-      println("Cleaning RPM")
-      IO.delete(new File(destinationDirectory.value + "/" + packageName.value + "-" + packageVersion.value + "-" + arch.value))
+      val rpmFileName = destinationDirectory.value + "/" + packageName.value + "-" + packageVersion.value + "-" + packageRelease.value + "." + arch.value.toLowerCase + ".rpm";
+      println(s"Cleaning RPM file : ${rpmFileName} ")      
+      IO.delete(new File(rpmFileName))
     })
 
   def undefinedKeyError[A](key: AttributeKey[A]): A = {
@@ -119,7 +152,7 @@ object Rpm extends AutoPlugin {
         s"Please declare a value for the `${key.label}` key.")
   }
 
-  private[this] def buildRpm() {
+  private[this] def setScripts() {
   }
 
   private[this] def cleanRpm() {

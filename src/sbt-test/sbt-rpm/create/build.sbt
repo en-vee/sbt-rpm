@@ -9,4 +9,6 @@ packageRelease := "1"
 packageFiles += ("C:/temp/cascade.gif" -> "/opt/axlrate/imgs/cascade.gif")
 packageFiles += ("C:/temp/prev.gif" -> "/opt/axlrate/imgs/prev.gif")
 packageDirectories += "/var/opt/axlrate/log"
-packageDependencies += ("axlrate-utils","1.0","GE")
+packageDependencies += ("axlrate-utils","gt","1.0")
+preInstallScript := "src/dist/rpm/scripts/preInstall.sh"
+postInstallScript := "src/dist/rpm/scripts/postInstall.sh"
