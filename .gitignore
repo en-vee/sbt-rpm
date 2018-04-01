@@ -8,4 +8,4 @@ target/*
 .cache-main
 src/sbt-test/sbt-rpm/create/build.sbt~
 src/sbt-test/sbt-rpm/create/test~
-
+.README.md.html
