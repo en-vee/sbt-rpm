@@ -1,5 +1,5 @@
 > rpmBuild
-> rpmClean
+#> rpmClean
 #> rpm "build"
 #> rpm clean
 #-> rpm build1

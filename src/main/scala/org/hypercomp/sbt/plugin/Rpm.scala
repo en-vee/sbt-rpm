@@ -49,7 +49,7 @@ object Rpm extends AutoPlugin {
     val rpmPreUninstallScript = settingKey[String]("Pre-UnInstallation script")
     val rpmPostInstallScript = settingKey[String]("Post-installation script")
     val rpmPostUninstallScript = settingKey[String]("Post-UnInstallation script")
-    val rpmPackageFiles = settingKey[Map[String, String]]("List of files which are to be included in package")
+    val rpmPackageFiles = taskKey[Map[String, String]]("List of files which are to be included in package")
     val rpmPackageDirectories = settingKey[Seq[String]]("List of directories which are to be included in package")
     
   }
@@ -80,10 +80,12 @@ object Rpm extends AutoPlugin {
       /*
        * Get list of files which are to be added and add them one by one
        */
-      println("Adding RPM Package Files")
+      
+      streams.value.log.info("Adding RPM Package Files")
+            
       if (!rpmPackageFiles.value.isEmpty) {
         rpmPackageFiles.value.foreach { file =>
-          println(s"adding file : ${file._1}")
+          streams.value.log.info(s"adding file : ${file._1}")
           /*
            * TODO : Check if file specified as input exists
            */
@@ -96,7 +98,7 @@ object Rpm extends AutoPlugin {
          */
         if (!rpmPackageDirectories.value.isEmpty) {
           rpmPackageDirectories.value.foreach { dir =>
-            println(s"adding directory : ${dir}")
+            streams.value.log.info(s"adding directory : ${dir}")
             rpmBuilder.addDirectory(dir)
           }
         }
@@ -115,36 +117,37 @@ object Rpm extends AutoPlugin {
         /*
          * Add Pre/Post install scripts
          */
-        println("Checking pre-install script")
+        streams.value.log.info("Checking pre-install script")
         if(!rpmPreInstallScript.value.isEmpty) {
-          println(s"Setting pre-install script ${rpmPreInstallScript.value}")
+          streams.value.log.info(s"Setting pre-install script ${rpmPreInstallScript.value}")
           rpmBuilder.setPreInstallScript(file(rpmPreInstallScript.value))
         }     
         
-        println("Checking post-install script")
+        streams.value.log.info("Checking post-install script")
         if(!rpmPostInstallScript.value.isEmpty) {
-          println(s"Setting post-install script ${rpmPostInstallScript.value}")
+          streams.value.log.info(s"Setting post-install script ${rpmPostInstallScript.value}")
           rpmBuilder.setPostInstallScript(file(rpmPostInstallScript.value))
         }
         
-        println("Checking pre-un-install script")
+        streams.value.log.info("Checking pre-un-install script")
         if(!rpmPreUninstallScript.value.isEmpty) {
           println(s"Setting pre-un-install script ${rpmPreUninstallScript.value}")
           rpmBuilder.setPreUninstallScript(file(rpmPreUninstallScript.value))
         }
         
-        println("Checking post-un-install script")
+        streams.value.log.info("Checking post-un-install script")
         if(!rpmPostUninstallScript.value.isEmpty) {
-          println(s"Setting post-un-install script ${rpmPostUninstallScript.value}")
+          streams.value.log.info(s"Setting post-un-install script ${rpmPostUninstallScript.value}")
           rpmBuilder.setPostUninstallScript(file(rpmPostUninstallScript.value))
         }
         
       
       rpmBuilder.build(new File(rpmDestinationDirectory.value))
+      streams.value.log.success("Finished building RPM")
     },
     rpmClean := {
       val rpmFileName = rpmDestinationDirectory.value + "/" + rpmPackageName.value + "-" + rpmPackageVersion.value + "-" + rpmPackageRelease.value + "." + rpmArch.value.toLowerCase + ".rpm";
-      println(s"Cleaning RPM file : ${rpmFileName} ")      
+      streams.value.log.info(s"Cleaning RPM file : ${rpmFileName} ")      
       IO.delete(new File(rpmFileName))
     })
 
