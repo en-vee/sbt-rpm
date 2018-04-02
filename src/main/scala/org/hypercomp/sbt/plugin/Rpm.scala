@@ -29,71 +29,73 @@ object Rpm extends AutoPlugin {
     /*
      * Packaging options
      */
-    val destinationDirectory = settingKey[String]("destinatin directory of the RPM on local file system")
+    val rpmDestinationDirectory = settingKey[String]("destinatin directory of the RPM on local file system")
     /*
      * RPM Headers
      */
-    val packageName = settingKey[String](s"name of the package. defaults to project name which in this case is ${name}")
-    val packageDescription = settingKey[String]("package description")
-    val packageRelease = settingKey[String]("RPM Release")
-    val packageVersion = settingKey[String]("RPM Version")
-    val epoch = settingKey[Int]("Defaults to 0")
-    val user = settingKey[String]("Default user to which file permissions are to be assigned")
-    val permissionGroup = settingKey[String]("Default group to which file permissions are to be assigned")
-    val arch = settingKey[String](s"Architecture/Instruction set type which can be one of ${Architecture.values().mkString(",")}")
-    val os = settingKey[String](s"Operating System type which can be one of ${Os.values().mkString(",")}")
-    val license = settingKey[String]("Type of license")
-    val packageDependencies = settingKey[Seq[(String,String,String)]]("The package and it's version on which this RPM depends")
-    val directory = settingKey[Unit]("Directory to be added to the RPM")
-    val preInstallScript = settingKey[String]("Pre-installation script")
-    val preUninstallScript = settingKey[String]("Pre-UnInstallation script")
-    val postInstallScript = settingKey[String]("Post-installation script")
-    val postUninstallScript = settingKey[String]("Post-UnInstallation script")
-    val packageFiles = settingKey[Map[String, String]]("List of files which are to be included in package")
-    val packageDirectories = settingKey[Seq[String]]("List of directories which are to be included in package")
+    val rpmPackageName = settingKey[String](s"name of the package. defaults to project name which in this case is ${name}")
+    val rpmPackageDescription = settingKey[String]("package description")
+    val rpmPackageRelease = settingKey[String]("RPM Release")
+    val rpmPackageVersion = settingKey[String]("RPM Version")
+    val rpmEpoch = settingKey[Int]("Defaults to 0")
+    val rpmUser = settingKey[String]("Default user to which file permissions are to be assigned")
+    val rpmPermissionGroup = settingKey[String]("Default group to which file permissions are to be assigned")
+    val rpmArch = settingKey[String](s"Architecture/Instruction set type which can be one of ${Architecture.values().mkString(",")}")
+    val rpmOS = settingKey[String](s"Operating System type which can be one of ${Os.values().mkString(",")}")
+    val rpmLicense = settingKey[String]("Type of license")
+    val rpmPackageDependencies = settingKey[Seq[(String,String,String)]]("The package and it's version on which this RPM depends")
+    val rpmDirectory = settingKey[Unit]("Directory to be added to the RPM")
+    val rpmPreInstallScript = settingKey[String]("Pre-installation script")
+    val rpmPreUninstallScript = settingKey[String]("Pre-UnInstallation script")
+    val rpmPostInstallScript = settingKey[String]("Post-installation script")
+    val rpmPostUninstallScript = settingKey[String]("Post-UnInstallation script")
+    val rpmPackageFiles = settingKey[Map[String, String]]("List of files which are to be included in package")
+    val rpmPackageDirectories = settingKey[Seq[String]]("List of directories which are to be included in package")
     
   }
 
   import autoImport._
 
   override val projectSettings = Seq(
-    packageName := undefinedKeyError(packageName.key),
-    packageDescription := undefinedKeyError(packageDescription.key),
-    packageRelease := undefinedKeyError(packageRelease.key),
-    packageVersion := undefinedKeyError(packageVersion.key),
-    os := undefinedKeyError(os.key),
-    arch := undefinedKeyError(arch.key),
-    packageFiles := Map[String, String](),
-    packageDirectories := Seq[String](),
-    packageDependencies := Seq(),
-    preInstallScript := "",
-    postInstallScript := "",
-    preUninstallScript := "",
-    postUninstallScript := "",
+    rpmPackageName := undefinedKeyError(rpmPackageName.key),
+    rpmPackageDescription := undefinedKeyError(rpmPackageDescription.key),
+    rpmPackageRelease := undefinedKeyError(rpmPackageRelease.key),
+    rpmPackageVersion := undefinedKeyError(rpmPackageVersion.key),
+    rpmOS := undefinedKeyError(rpmOS.key),
+    rpmArch := undefinedKeyError(rpmArch.key),
+    rpmPackageFiles := Map[String, String](),
+    rpmPackageDirectories := Seq[String](),
+    rpmPackageDependencies := Seq(),
+    rpmPreInstallScript := "",
+    rpmPostInstallScript := "",
+    rpmPreUninstallScript := "",
+    rpmPostUninstallScript := "",
     rpmBuild := {
       println("Building RPM")
       val rpmBuilder: Builder = new Builder()
       rpmBuilder.setType(RpmType.BINARY)
-      rpmBuilder.setPackage(packageName.value, packageVersion.value, packageRelease.value)
-      rpmBuilder.setPlatform(Architecture.valueOf(arch.value.toUpperCase()), Os.valueOf(os.value.toUpperCase))
-      rpmBuilder.setDescription(packageDescription.value)
+      rpmBuilder.setPackage(rpmPackageName.value, rpmPackageVersion.value, rpmPackageRelease.value)
+      rpmBuilder.setPlatform(Architecture.valueOf(rpmArch.value.toUpperCase()), Os.valueOf(rpmOS.value.toUpperCase))
+      rpmBuilder.setDescription(rpmPackageDescription.value)
       /*
        * Get list of files which are to be added and add them one by one
        */
-      if (!packageFiles.value.isEmpty) {
-        packageFiles.value.foreach { file =>
+      println("Adding RPM Package Files")
+      if (!rpmPackageFiles.value.isEmpty) {
+        rpmPackageFiles.value.foreach { file =>
           println(s"adding file : ${file._1}")
           /*
            * TODO : Check if file specified as input exists
            */
           rpmBuilder.addFile(file._2, new File(file._1))
         }
-
+      }
+      
         /*
          * Get list of directories which are to be added and add them one by one
          */
-        if (!packageDirectories.value.isEmpty) {
-          packageDirectories.value.foreach { dir =>
+        if (!rpmPackageDirectories.value.isEmpty) {
+          rpmPackageDirectories.value.foreach { dir =>
             println(s"adding directory : ${dir}")
             rpmBuilder.addDirectory(dir)
           }
@@ -102,8 +104,8 @@ object Rpm extends AutoPlugin {
         /*
          * Add dependencies
          */
-        if(!packageDependencies.value.isEmpty) {
-          packageDependencies.value.foreach {
+        if(!rpmPackageDependencies.value.isEmpty) {
+          rpmPackageDependencies.value.foreach {
             dep =>
               streams.value.log.info(s"adding dependency on ${dep._1}")
               rpmBuilder.addDependency(dep._1, Flags.GREATER | Flags.EQUAL, dep._3)
@@ -114,34 +116,34 @@ object Rpm extends AutoPlugin {
          * Add Pre/Post install scripts
          */
         println("Checking pre-install script")
-        if(!preInstallScript.value.isEmpty) {
-          println(s"Setting pre-install script ${preInstallScript.value}")
-          rpmBuilder.setPreInstallScript(file(preInstallScript.value))
+        if(!rpmPreInstallScript.value.isEmpty) {
+          println(s"Setting pre-install script ${rpmPreInstallScript.value}")
+          rpmBuilder.setPreInstallScript(file(rpmPreInstallScript.value))
         }     
         
         println("Checking post-install script")
-        if(!postInstallScript.value.isEmpty) {
-          println(s"Setting post-install script ${postInstallScript.value}")
-          rpmBuilder.setPostInstallScript(file(postInstallScript.value))
+        if(!rpmPostInstallScript.value.isEmpty) {
+          println(s"Setting post-install script ${rpmPostInstallScript.value}")
+          rpmBuilder.setPostInstallScript(file(rpmPostInstallScript.value))
         }
         
         println("Checking pre-un-install script")
-        if(!preUninstallScript.value.isEmpty) {
-          println(s"Setting pre-un-install script ${preUninstallScript.value}")
-          rpmBuilder.setPreUninstallScript(file(preUninstallScript.value))
+        if(!rpmPreUninstallScript.value.isEmpty) {
+          println(s"Setting pre-un-install script ${rpmPreUninstallScript.value}")
+          rpmBuilder.setPreUninstallScript(file(rpmPreUninstallScript.value))
         }
         
         println("Checking post-un-install script")
-        if(!postUninstallScript.value.isEmpty) {
-          println(s"Setting post-un-install script ${postUninstallScript.value}")
-          rpmBuilder.setPostUninstallScript(file(postUninstallScript.value))
+        if(!rpmPostUninstallScript.value.isEmpty) {
+          println(s"Setting post-un-install script ${rpmPostUninstallScript.value}")
+          rpmBuilder.setPostUninstallScript(file(rpmPostUninstallScript.value))
         }
         
-      }
-      rpmBuilder.build(new File(destinationDirectory.value))
+      
+      rpmBuilder.build(new File(rpmDestinationDirectory.value))
     },
     rpmClean := {
-      val rpmFileName = destinationDirectory.value + "/" + packageName.value + "-" + packageVersion.value + "-" + packageRelease.value + "." + arch.value.toLowerCase + ".rpm";
+      val rpmFileName = rpmDestinationDirectory.value + "/" + rpmPackageName.value + "-" + rpmPackageVersion.value + "-" + rpmPackageRelease.value + "." + rpmArch.value.toLowerCase + ".rpm";
       println(s"Cleaning RPM file : ${rpmFileName} ")      
       IO.delete(new File(rpmFileName))
     })
@@ -151,16 +153,4 @@ object Rpm extends AutoPlugin {
       s"${key.description.getOrElse("A required key")} is not defined. " +
         s"Please declare a value for the `${key.label}` key.")
   }
-
-  private[this] def setScripts() {
-  }
-
-  private[this] def cleanRpm() {
-
-  }
-
-  private[this] def inspectRpm() {
-
-  }
-
 }
