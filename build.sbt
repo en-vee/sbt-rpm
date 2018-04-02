@@ -1,11 +1,11 @@
 lazy val commonSettings = Seq(
-  version in ThisBuild := "1.0.0",
+  version in ThisBuild := "1.0.1",
   organization in ThisBuild := "org.hypercomp"
 )
 
 lazy val root = (project in file(".")).settings(
 			name := "sbt-rpm",
-			version := "1.0.0",
+			version := "1.0.1",
 			organization := "org.hypercomp",
 			sbtPlugin := true,
 			libraryDependencies += "org.redline-rpm" % "redline" % "1.2.6"			

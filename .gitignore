@@ -9,3 +9,4 @@ target/*
 src/sbt-test/sbt-rpm/create/build.sbt~
 src/sbt-test/sbt-rpm/create/test~
 .README.md.html
+build.sbt~
