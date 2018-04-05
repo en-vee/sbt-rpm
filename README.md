@@ -6,6 +6,7 @@
 ## Pre-requisites
 * Scala version >= 2.10
 * sbt version >= 0.13.13
+
 [Back to Top](#sbt-rpm)
 
 ## Getting it
