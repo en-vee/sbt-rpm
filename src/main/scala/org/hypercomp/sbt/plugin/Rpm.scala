@@ -51,7 +51,6 @@ object Rpm extends AutoPlugin {
     val rpmPostUninstallScript = settingKey[String]("Post-UnInstallation script")
     val rpmPackageFiles = taskKey[Map[String, String]]("List of files which are to be included in package")
     val rpmPackageDirectories = settingKey[Seq[String]]("List of directories which are to be included in package")
-    
   }
 
   import autoImport._
